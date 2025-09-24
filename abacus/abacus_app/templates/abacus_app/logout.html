@@ -1,0 +1,46 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}Logout{% endblock %}
+
+{% block content %}
+<style>
+    .logout-container {
+        max-width: 400px;
+        margin: 100px auto;
+        text-align: center;
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        color: black;
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+
+    .login-link {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background: blue;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+
+    .login-link:hover {
+        background: darkblue;
+    }
+</style>
+
+<div class="logout-container">
+    <h2>You have been logged out.</h2>
+    <a href="{% url 'login' %}" class="login-link">Login Again</a>
+</div>
+
+{% endblock %}

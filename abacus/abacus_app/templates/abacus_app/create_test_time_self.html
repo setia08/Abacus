@@ -1,0 +1,121 @@
+{% extends "abacus_app/layout.html" %}
+
+{% block content %}
+<style>
+    body {
+        background-color: white;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: auto;
+        background: black;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+        text-align: center;
+        color: red;
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        color: red;
+        display: block;
+        margin-top: 10px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid red;
+        border-radius: 5px;
+        background-color: white;
+        color: black;
+    }
+
+    button {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        font-size: 1.2em;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 15px;
+        border-radius: 5px;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background-color: darkred;
+    }
+
+    #questions_container {
+        margin-top: 15px;
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            width: 90%;
+            padding: 15px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            font-size: 1em;
+        }
+
+        button {
+            font-size: 1em;
+        }
+    }
+</style>
+
+<div class="container">
+    <h2>Create Test</h2>
+    <form method="POST">
+        {% csrf_token %}
+        
+        <label>Title:</label>
+        <input type="text" name="title" required><br>
+
+        <label>Number of Questions:</label>
+        <input type="number" id="num_questions" name="num_questions" required><br>
+
+        <label>Time Limit (minutes):</label>
+        <input type="number" name="time_limit" required><br>
+
+        <div id="questions_container"></div>
+
+        <button type="submit">Create Test</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById("num_questions").addEventListener("change", function() {
+        let num = parseInt(this.value);
+        let container = document.getElementById("questions_container");
+        container.innerHTML = "";
+
+        for (let i = 0; i < num; i++) {
+            container.innerHTML += `
+                <label>Question ${i + 1}:</label>
+                <input type="text" name="question_${i}" required><br>
+                <label>Answer ${i + 1}:</label>
+                <input type="text" name="answer_${i}" required><br>
+            `;
+        }
+    });
+</script>
+
+{% endblock %}

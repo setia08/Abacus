@@ -1,0 +1,99 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}Assignment Submission{% endblock %}
+
+{% block content %}
+<style>
+    /* Overall Container */
+    .assignment-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    h2 {
+        color: black;
+        border-bottom: 3px solid red;
+        display: inline-block;
+        padding-bottom: 5px;
+    }
+
+    p {
+        font-size: 16px;
+        color: #333;
+        margin: 10px 0;
+    }
+
+    /* Submitted Message */
+    .submitted-message {
+        background: #ffdddd;
+        color: red;
+        font-weight: bold;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 20px 0;
+    }
+
+    /* Score Styling */
+    .score-text {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .score-value {
+        color: green;
+        font-weight: bold;
+    }
+
+    .under-review {
+        color: orange;
+        font-weight: bold;
+    }
+
+    /* Button Styling */
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        transition: 0.3s;
+    }
+
+    .back-btn {
+        background: red;
+        color: white;
+        margin-top: 15px;
+    }
+
+    .back-btn:hover {
+        background: black;
+    }
+</style>
+
+<div class="assignment-container">
+    <h2>Assignment: {{ assignment.title }}</h2>
+    <p><strong>Due Date:</strong> {{ assignment.due_date }}</p>
+
+    <div class="submitted-message">
+        <p>You have already submitted this assignment.</p>
+    </div>
+
+    <!-- Show Score -->
+    <p class="score-text">
+        <strong>Score:</strong> 
+        {% if submission.score is not None %}
+            <span class="score-value">{{ submission.score }}/100</span>
+        {% else %}
+            <span class="under-review">Under Review</span>
+        {% endif %}
+    </p>
+
+    <a href="{% url 'dashboard' %}" class="btn back-btn">Go to Dashboard</a>
+</div>
+{% endblock %}

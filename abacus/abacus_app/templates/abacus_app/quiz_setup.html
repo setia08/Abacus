@@ -1,0 +1,155 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz Setup</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: Arial, sans-serif;
+        }
+        
+        form {
+            background: #f8f8f8;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            margin: auto;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="number"], input[type="checkbox"] {
+            margin: 5px 0;
+            padding: 5px;
+            width: 100%;
+            border: 1px solid #d32f2f;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #d32f2f;
+            color: #ffffff;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        a button {
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+
+    <script>
+        function setQuiz(event) {
+            event.preventDefault(); // Prevent form submission
+            
+            const formData = new FormData(document.getElementById('quiz-form'));
+
+            fetch('/quiz_setup/', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+            .then(data => {
+                if (data.status === 'Quiz Configured') {
+                    alert('Quiz is successfully set! Click "Start Quiz" to begin.');
+                } else {
+                    alert('Error setting quiz.');
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <form id="quiz-form" onsubmit="setQuiz(event)">
+        {% csrf_token %}
+        <label>Number of Questions:</label> 
+        <input type="number" name="num_questions" required><br>
+
+        <label>Min Range:</label> 
+        <input type="number" name="min_range" required><br>
+
+        <label>Max Range:</label> 
+        <input type="number" name="max_range" required><br>
+
+        <label>Expression Length:</label> 
+        <input type="number" name="length" required><br>
+
+        <label>Time per Question (seconds):</label> 
+        <input type="number" name="time_per_question" required><br>
+
+        <style>
+            .operators-container {
+                display: flex;
+                justify-content: center;
+                margin-top: 10px;
+            }
+        
+            .operators-table {
+                border-collapse: collapse;
+                width: 50%;
+            }
+        
+            .operators-table td {
+                border: 2px solid #d32f2f;
+                padding: 10px;
+                text-align: center;
+                font-size: 18px;
+                font-weight: bold;
+            }
+        
+            .operators-table input {
+                transform: scale(1.5);
+                margin-right: 5px;
+            }
+        
+            @media (max-width: 768px) {
+                .operators-table {
+                    width: 80%;
+                }
+            }
+        </style>
+        
+        <label>Operators:</label><br>
+        <div class="operators-container">
+            <table class="operators-table">
+                <tr>
+                    <td><input type="checkbox" name="operators" value="+"> +</td>
+                    <td><input type="checkbox" name="operators" value="-"> -</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="operators" value="*"> *</td>
+                    <td><input type="checkbox" name="operators" value="/"> /</td>
+                </tr>
+            </table>
+        </div>
+        
+        <button type="submit">Set Quiz</button>
+    </form>
+    
+    <br>
+    
+    <a href="{% url 'start_quiz' %}"><button>Start Quiz</button></a>
+</body>
+</html>
+
+{% endblock %}

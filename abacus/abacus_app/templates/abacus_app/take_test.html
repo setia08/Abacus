@@ -1,0 +1,74 @@
+<style>
+    /* Centering the Form */
+    .test-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    h2 {
+        color: black;
+        border-bottom: 3px solid red;
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    p {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    /* Input Field Styling */
+    input[type="number"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-top: 5px;
+    }
+
+    /* Submit Button Styling */
+    button {
+        background: red;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.3s ease-in-out;
+        margin-top: 15px;
+        width: 100%;
+    }
+
+    button:hover {
+        background: black;
+        transform: scale(1.05);
+    }
+</style>
+
+<div class="test-container">
+    <h2>Take the Test</h2>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="start_time" id="start_time">
+
+        {% for question in questions %}
+            <p><strong>Q{{ forloop.counter }}:</strong> {{ question.question_text }} = ?</p>
+            <input type="number" name="question_{{ question.id }}" required>
+        {% endfor %}
+
+        <button type="submit">Submit Test</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById("start_time").value = Math.floor(Date.now() / 1000);
+</script>

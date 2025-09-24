@@ -1,0 +1,44 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div style="display: flex;">
+    
+    <!-- Sidebar -->
+    <div style="width: 25%; background: #f4f4f4; padding: 20px; height: 100vh; overflow-y: auto;">
+        <h3>Lectures</h3>
+        <ul>
+            {% for lecture in lectures %}
+                <li><a href="{% url 'view_lecture' lecture.id %}">{{ lecture.title }}</a></li>
+            {% endfor %}
+        </ul>
+
+        <h3>Assignments</h3>
+        <ul>
+            {% for assignment in assignments %}
+                <li><a href="{% url 'assignment_detail' assignment.id %}">{{ assignment.title }}</a></li>
+            {% endfor %}
+        </ul>
+        
+    </div>
+
+    <!-- Main Content (Video) -->
+    <div style="width: 75%; padding: 20px;">
+        <h2>{{ selected_lecture.title }}</h2>
+        <div class="video-container">
+            <iframe width="100%" height="400px"
+            src="{{ selected_lecture.video_url }}"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+        </iframe>
+        
+        </div>
+        
+        <p>{{ selected_lecture.description }}</p>
+
+    </div>
+
+</div>
+{% endblock %}

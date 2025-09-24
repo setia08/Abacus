@@ -1,0 +1,158 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block content %}
+
+<head>
+    <title>Quiz</title>
+    <style>
+
+        #quiz-container {
+            background: #f8f8f8;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            margin: auto;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #d32f2f;
+        }
+
+        #timer {
+            font-size: 18px;
+            font-weight: bold;
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 80%;
+            border: 2px solid #d32f2f;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #d32f2f;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            #quiz-container {
+                width: 90%;
+            }
+
+            input[type="text"] {
+                width: 100%;
+            }
+        }
+    </style>
+
+<script>
+    let timePerQuestion = {{ time_per_question }}; // 10 seconds
+    let gracePeriod = 5; // Extra 5 seconds
+    let questionParts = [];
+    let currentPartIndex = 0;
+    let timeLeft = timePerQuestion;
+    let countdown;
+    let timerId;
+    let inGracePeriod = false; // Flag to indicate if we are in the grace period
+
+    function fetchQuestion() {
+        fetch('/quiz_question/', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.finished) {
+                    document.getElementById('quiz-container').innerHTML = `<h2>Quiz Completed!</h2><p>Your Score: ${data.score}</p>`;
+                } else {
+                    questionParts = data.question_parts;
+                    currentPartIndex = 0;
+                    document.getElementById('question').innerText = "";
+                    document.getElementById('answer').value = "";
+                    timeLeft = timePerQuestion;
+                    inGracePeriod = false;
+
+                    startTimer(); // Start countdown
+                    startQuestionDisplay(); // Start revealing question parts
+                }
+            });
+    }
+
+    function startQuestionDisplay() {
+        let revealTime = timePerQuestion / questionParts.length;
+        let questionText = "";
+
+        timerId = setInterval(() => {
+            if (currentPartIndex < questionParts.length) {
+                questionText += " " + questionParts[currentPartIndex];
+                document.getElementById('question').innerText = questionText;
+                currentPartIndex++;
+            } else {
+                clearInterval(timerId); // Stop revealing when all parts are displayed
+            }
+        }, revealTime * 1000);
+    }
+
+    function startTimer() {
+        document.getElementById('timer').innerText = `Time Left: ${timeLeft}s`;
+        countdown = setInterval(() => {
+            timeLeft--;
+
+            if (timeLeft < 0 && !inGracePeriod) {
+                // Start grace period
+                inGracePeriod = true;
+                timeLeft = gracePeriod;
+                document.getElementById('timer').innerText = `Grace Period: ${timeLeft}s`;
+                document.getElementById('timer').style.color = "blue"; // Change color to indicate grace period
+            } else if (timeLeft >= 0) {
+                document.getElementById('timer').innerText = inGracePeriod
+                    ? `Grace Period: ${timeLeft}s`
+                    : `Time Left: ${timeLeft}s`;
+            }
+
+            if (timeLeft <= 0 && inGracePeriod) {
+                clearInterval(countdown);
+                clearInterval(timerId);
+                submitAnswer(); // Auto-submit after grace period
+            }
+        }, 1000);
+    }
+
+    function submitAnswer() {
+        clearInterval(countdown);
+        clearInterval(timerId);
+        let answer = document.getElementById('answer').value;
+
+        fetch('/quiz_question/', {
+            method: 'POST',
+            body: new URLSearchParams({ 'answer': answer }),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        }).then(() => fetchQuestion()); // Load next question
+    }
+
+    window.onload = fetchQuestion;
+</script>
+
+</head>
+
+    <div id="quiz-container">
+        <h2 id="question">Loading...</h2>
+        <p id="timer"></p>
+        <input type="text" id="answer" placeholder="Enter Answer">
+    </div>
+
+
+{% endblock %}

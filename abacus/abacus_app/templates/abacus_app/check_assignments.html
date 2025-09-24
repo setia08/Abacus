@@ -1,0 +1,124 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}Check Assignments{% endblock %}
+
+{% block content %}
+<style>
+    /* Page Styling */
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h2 {
+        color: #333;
+        border-bottom: 3px solid red;
+        display: inline-block;
+        padding-bottom: 5px;
+    }
+
+    /* Table Styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 2px solid #ddd;
+    }
+
+    th {
+        background: black;
+        color: white;
+    }
+
+    tr:nth-child(even) {
+        background: #f9f9f9;
+    }
+
+    tr:hover {
+        background: #f1f1f1;
+    }
+
+    /* Status Styling */
+    .status-correct {
+        color: green;
+        font-weight: bold;
+    }
+
+    .status-incorrect {
+        color: red;
+        font-weight: bold;
+    }
+
+    .status-not-marked {
+        color: orange;
+        font-weight: bold;
+    }
+
+    /* Button Styling */
+    .grade-btn {
+        background: red;
+        color: white;
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+    .grade-btn:hover {
+        background: black;
+    }
+</style>
+
+<h2>Assignment Submissions</h2>
+
+{% if submissions %}
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Assignment</th>
+                <th>Submitted At</th>
+                <th>Score</th>
+                <th>Correct?</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for submission in submissions %}
+            <tr>
+                <td>{{ submission.student.username }}</td>
+                <td>{{ submission.assignment.title }}</td>
+                <td>{{ submission.submitted_at }}</td>
+                <td>{{ submission.score|default:"Not Graded" }}</td>
+                <td>
+                    {% if submission.is_correct is not None %}
+                        {% if submission.is_correct %}
+                            <span class="status-correct">✅ Correct</span>
+                        {% else %}
+                            <span class="status-incorrect">❌ Incorrect</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="status-not-marked">Not Marked</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'grade_assignment' submission.id %}" class="grade-btn">Grade</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No submissions yet.</p>
+{% endif %}
+
+{% endblock %}

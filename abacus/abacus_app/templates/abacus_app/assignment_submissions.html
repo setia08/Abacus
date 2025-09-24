@@ -1,0 +1,91 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}Submissions - {{ assignment.title }}{% endblock %}
+
+{% block content %}
+<style>
+    /* Container Styling */
+    .submissions-container {
+        max-width: 700px;
+        margin: 40px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        color: black;
+        border-bottom: 3px solid red;
+        display: inline-block;
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+    }
+
+    /* Submission List */
+    .submission-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .submission-item {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        border-left: 5px solid red;
+    }
+
+    .submission-item strong {
+        font-size: 16px;
+        color: black;
+    }
+
+    .submission-item p {
+        margin: 8px 0;
+        font-size: 14px;
+        color: #333;
+    }
+
+    /* Download Link */
+    .download-link {
+        display: inline-block;
+        color: white;
+        background: red;
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .download-link:hover {
+        background: black;
+    }
+</style>
+
+<div class="submissions-container">
+    <h2>Submissions for {{ assignment.title }}</h2>
+
+    {% if submissions %}
+        <ul class="submission-list">
+            {% for submission in submissions %}
+                <li class="submission-item">
+                    <strong>{{ submission.student.username }}</strong> - Submitted on {{ submission.submitted_at }}
+                    
+                    {% if submission.answer_text %}
+                        <p><strong>Answer:</strong> {{ submission.answer_text }}</p>
+                    {% endif %}
+                    
+                    {% if submission.answer_file %}
+                        <p><a href="{{ submission.answer_file.url }}" download class="download-link">📄 Download File</a></p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No submissions yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

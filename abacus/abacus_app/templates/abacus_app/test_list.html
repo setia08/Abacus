@@ -1,0 +1,134 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block content %}
+<style>
+    body {
+        background-color: white;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: auto;
+        background: black;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    h2 {
+        text-align: center;
+        color: red;
+        margin-bottom: 20px;
+    }
+
+    a {
+        display: inline-block;
+        margin: 10px;
+        padding: 10px 15px;
+        background-color: red;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: 0.3s;
+    }
+
+    a:hover {
+        background-color: darkred;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    li {
+        background: white;
+        color: black;
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    li strong {
+        flex: 1;
+    }
+
+    .test-links {
+        display: flex;
+        gap: 10px;
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            width: 90%;
+            padding: 15px;
+        }
+
+        li {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .test-links {
+            flex-direction: column;
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="container">
+  <h2>Test List</h2>
+
+  {% if request.user.is_teacher %}
+    <a href="{% url 'create_test' %}">+ Create New Test</a>
+    <a href="{% url 'create_test_time_self' %}">+ Create New Test with Timer</a>
+  {% endif %}
+
+  <ul>
+    {% for test in tests %}
+      <li>
+        <strong>{{ test.title }}</strong> 
+        <div class="test-links">
+          {% if request.user.is_teacher %}
+            <a href="{% url 'view_test_results' test.id %}">View Results</a>
+          {% else %}
+            {% if test.id in given_tests %}
+              <a href="{% url 'view_test_results' test.id %}">View Results</a>
+            {% else %}
+              <a href="{% url 'buy_test' test.id %}">Take Test</a>
+            {% endif %}
+          {% endif %}
+        </div>
+      </li>
+    {% endfor %}
+    
+    {% for test in tests_2 %}
+      <li>
+        <strong>{{ test.title }}</strong> 
+        <div class="test-links">
+          {% if request.user.is_teacher %}
+            <a href="{% url 'view_test_results_self' test.id %}">View Results</a>
+          {% else %}
+            {% if test.id in given_tests_2 %}
+              <a href="{% url 'view_test_results_self' test.id %}">View Results</a>
+            {% else %}
+              <a href="{% url 'buy_test_time_self' test.id %}">Take Test</a>
+            {% endif %}
+          {% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% endblock %}

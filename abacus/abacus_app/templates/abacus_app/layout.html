@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Abacus Dashboard{% endblock %}</title>
+    <style>
+        /* General Page Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f4f4;
+            color: #333;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background: black;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            background: red;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .navbar a:hover {
+            background: white;
+            color: black;
+        }
+
+        /* Main Content Container */
+        .container {
+            padding: 20px;
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <!-- Left side navigation -->
+        <div>
+            <a href="{% url 'dashboard' %}">Home</a>
+            <a href="{% url 'ebook_list' %}">E-Books</a>
+        </div>
+
+        <!-- Middle Section for Teachers and Admin -->
+        <div>
+            {% if user.is_authenticated %}
+                {% if user.is_teacher %}
+                    <a href="{% url 'create_test' %}">Create Test</a>
+                    <a href="{% url 'teacher_dashboard' %}">Teacher Panel</a>
+                {% endif %}
+
+                {% if user.is_superuser %}
+                    <a href="{% url 'check_assignments' %}">Check Assignments</a>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Right side user options -->
+        <div>
+            <a href="{% url 'test_list' %}">All Tests</a>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'my_ebooks' %}">My E-Books</a>
+                <span>Welcome, <span style="color: red; font-weight: bolder;">{{ user.username }}</span></span>
+                <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+            <a href="{% url 'quiz_setup' %}">quiz_setup</a>
+            <a href="{% url 'start_quiz' %}">start_quiz</a>
+
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>

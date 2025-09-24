@@ -1,0 +1,183 @@
+{% extends 'abacus_app/layout.html' %}
+{% block content %}
+<div class="dashboard-container">
+    <h2>Teacher Dashboard,{{request.user}}</h2>
+    
+    <div class="top-bar">
+        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+    </div>
+    <h3>Your Referral Code:</h3>
+    {% if request.user.referral_code %}
+        <p><strong>{{ request.user.referral_code }}</strong></p>
+        <p>Share this code with students to link them to you.</p>
+    {% else %}
+        <p>You do not have a referral code.</p>
+    {% endif %}
+    <hr>
+    <!-- Section: Registered Students -->
+    <section class="students-section">
+        <h3>Students Registered with Your Referral Code</h3>
+        {% if students %}
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Referral Code</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.username }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>{{ student.referral_code }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No students have registered with your referral code.</p>
+        {% endif %}
+    </section>
+
+    <!-- Section: Student Assignments -->
+    <section class="assignments-section">
+        <h3>Student Assignments</h3>
+        {% if assignments %}
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Assignment</th>
+                        <th>Submission Date</th>
+                        <th>Score</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in assignments %}
+                    <tr>
+                        <td>{{ assignment.student.username }}</td>
+                        <td>{{ assignment.assignment.title }}</td>
+                        <td>{{ assignment.submitted_at }}</td>
+                        <td>{{ assignment.score|default:"Not Graded" }}</td>
+                        <td>
+                            <!-- <form method="POST" action="{% url 'grade_assignment' assignment.id %}">
+                                {% csrf_token %}
+                                <input type="number" name="score" min="0" max="100" required> -->
+                                <button type="submit" class="btn"><a href="{% url 'grade_assignment' assignment.id %}">Grade</a></button>
+                            <!-- </form> -->
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No assignments submitted yet.</p>
+        {% endif %}
+    </section>
+</div>
+<!-- Section: Student Test Submissions -->
+<section class="test-results-section">
+    <h3>Student Test Submissions</h3>
+    {% if test_results %}
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Test Title</th>
+                    <th>Score</th>
+                    <th>Time Taken</th>
+                    <th>Completed On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in test_results %}
+                <tr>
+                    <td>{{ result.student.username }}</td>
+                    <td>{{ result.test.title }}</td>
+                    <td>{{ result.score }} / {{ result.test.num_questions }}</td>
+                    <td>{{ result.time_taken }} seconds</td>
+                    <td>{{ result.completed_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+                {% for result in test_results_2 %}
+                <tr>
+                    <td>{{ result.student.username }}</td>
+                    <td>{{ result.test.title }}</td>
+                    <td>{{ result.score }} / {{ result.test.num_questions }}</td>
+                    <td>{{ result.time_taken }} seconds</td>
+                    <td>{{ result.completed_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No tests have been submitted yet.</p>
+    {% endif %}
+</section>
+
+<!-- Styles -->
+<style>
+    .test-results-section {
+    margin-bottom: 20px;
+}
+
+.styled-table th {
+    background-color: #007bff;
+    color: white;
+}
+
+    .dashboard-container {
+        max-width: 900px;
+        margin: auto;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .top-bar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+    }
+    .logout-btn {
+        padding: 10px;
+        background: #ff4d4d;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    .students-section, .assignments-section {
+        margin-bottom: 20px;
+    }
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+        font-size: 16px;
+        text-align: left;
+    }
+    .styled-table th, .styled-table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+    .styled-table th {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .btn {
+        padding: 5px 10px;
+        background: #008CBA;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+    }
+    .btn:hover {
+        background: #005f75;
+    }
+</style>
+{% endblock %}

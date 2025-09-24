@@ -1,0 +1,68 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}Purchase {{ ebook.title }}{% endblock %}
+
+{% block content %}
+<style>
+    /* Container Styling */
+    .purchase-container {
+        max-width: 400px;
+        margin: 40px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    h2 {
+        color: black;
+        border-bottom: 3px solid red;
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    p {
+        font-size: 18px;
+        color: #333;
+        margin: 10px 0;
+    }
+
+    /* Payment Button */
+    .razorpay-payment-button {
+        background: red !important;
+        color: white !important;
+        padding: 12px 20px !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+        border: none !important;
+        border-radius: 5px !important;
+        cursor: pointer !important;
+        transition: 0.3s !important;
+    }
+
+    .razorpay-payment-button:hover {
+        background: black !important;
+    }
+</style>
+
+<div class="purchase-container">
+    <h2>Purchase: {{ ebook.title }}</h2>
+    <p><strong>Price:</strong> ₹{{ ebook.price }}</p>
+
+    <form action="{% url 'confirm_purchase' ebook.id %}" method="POST">
+        {% csrf_token %}
+        <script src="https://checkout.razorpay.com/v1/checkout.js"
+            data-key="{{ razorpay_key }}"
+            data-amount="{{ payment.amount }}"
+            data-currency="INR"
+            data-order_id="{{ payment.id }}"
+            data-buttontext="Pay Now"
+            data-name="E-Book Purchase"
+            data-description="{{ ebook.title }}">
+        </script>
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+    </form>
+</div>
+
+{% endblock %}

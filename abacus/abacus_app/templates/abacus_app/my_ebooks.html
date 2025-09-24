@@ -1,0 +1,71 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}My E-Books{% endblock %}
+
+{% block content %}
+<style>
+    /* Container Styling */
+    .ebook-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    h2 {
+        color: black;
+        border-bottom: 3px solid red;
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    li {
+        background: #f9f9f9;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 5px;
+        transition: 0.3s ease-in-out;
+    }
+
+    li:hover {
+        background: #ffecec;
+        transform: scale(1.02);
+    }
+
+    a {
+        text-decoration: none;
+        font-size: 18px;
+        font-weight: bold;
+        color: red;
+        transition: 0.3s;
+    }
+
+    a:hover {
+        color: black;
+    }
+</style>
+
+<div class="ebook-container">
+    <h2>My Purchased Books</h2>
+    {% if purchased_books %}
+        <ul>
+            {% for purchase in purchased_books %}
+                <li>
+                    <a href="{% url 'ebook_detail' purchase.ebook.id %}">{{ purchase.ebook.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have not purchased any books yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends "abacus_app/layout.html" %}
+
+{% block content %}
+<style>
+    body {
+        background-color: white;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: auto;
+        background: black;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+        text-align: center;
+        color: red;
+    }
+
+    #timer {
+        font-weight: bold;
+        font-size: 1.2em;
+        color: red;
+    }
+
+    p {
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid red;
+        border-radius: 5px;
+    }
+
+    button {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        font-size: 1.2em;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 15px;
+        border-radius: 5px;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background-color: darkred;
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            width: 90%;
+            padding: 15px;
+        }
+
+        input[type="text"] {
+            font-size: 1em;
+        }
+
+        button {
+            font-size: 1em;
+        }
+    }
+</style>
+
+<div class="container">
+    <h2>{{ test.title }}</h2>
+    <p>Time Remaining: <span id="timer"></span></p>
+
+    <form id="testForm">
+        {% csrf_token %}
+        {% for question in questions %}
+            <p>{{ question.question_text }}</p>
+            <input type="text" name="answer_{{ question.id }}" required><br>
+        {% endfor %}
+        <button type="submit">Submit Test</button>
+    </form>
+</div>
+
+<script>
+    let testId = {{ test.id }};
+    let totalTime = {{ test.time_limit }} * 60; // Convert minutes to seconds
+    let timeLeft = localStorage.getItem("test_timer_" + testId);
+    let startTime = localStorage.getItem("test_start_time_" + testId);
+
+    if (!timeLeft) {
+        timeLeft = totalTime;
+        startTime = Date.now();
+        localStorage.setItem("test_start_time_" + testId, startTime);
+    } else {
+        timeLeft = parseInt(timeLeft);
+    }
+
+    let timerDisplay = document.getElementById("timer");
+
+    function updateTimer() {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        timerDisplay.innerText = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+
+        if (timeLeft <= 0) {
+            submitTest();
+        } else {
+            timeLeft--;
+            localStorage.setItem("test_timer_" + testId, timeLeft);
+            setTimeout(updateTimer, 1000);
+        }
+    }
+
+    function submitTest() {
+        let formData = new FormData(document.getElementById("testForm"));
+        let answers = {};
+        for (let pair of formData.entries()) {
+            answers[pair[0].split("_")[1]] = pair[1];
+        }
+
+        let endTime = Date.now();
+        let timeTaken = Math.floor((endTime - startTime) / 1000);
+
+        fetch("{% url 'submit_test_time_self' test.id %}", {
+            method: "POST",
+            headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/json" },
+            body: JSON.stringify({ answers: answers, time_taken: timeTaken }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            localStorage.removeItem("test_timer_" + testId);
+            localStorage.removeItem("test_start_time_" + testId);
+            window.location.href = "{% url 'dashboard' %}";
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    document.getElementById("testForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        submitTest();
+    });
+
+    updateTimer();
+</script>
+
+{% endblock %}

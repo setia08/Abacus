@@ -1,0 +1,183 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block content %}
+<style>
+    body {
+        background-color: white;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: auto;
+        background: black;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    h2 {
+        text-align: center;
+        color: red;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: white;
+        color: black;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid red;
+    }
+
+    th {
+        background-color: red;
+        color: white;
+        cursor: pointer;
+    }
+
+    th:hover {
+        background-color: darkred;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tr:hover {
+        background-color: lightgray;
+    }
+
+    a {
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        color: white;
+        background-color: red;
+        padding: 10px;
+        border-radius: 5px;
+        text-decoration: none;
+        width: 200px;
+        margin: auto;
+        transition: 0.3s;
+    }
+
+    a:hover {
+        background-color: darkred;
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            width: 90%;
+            padding: 15px;
+        }
+
+        table {
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 8px;
+        }
+
+        a {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="container">
+  <h2>Test Results: {{ test.title }}</h2>
+
+  <table id="testResultsTable" border="1">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">Rank</th>
+        <th onclick="sortTable(1)">Student</th>
+        <th onclick="sortTable(2)">Score</th>
+        <th onclick="sortTable(3)">Time Taken (seconds)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for result in results %}
+        <tr>
+          <td class="rank"></td>
+          <td>{{ result.student.username }}</td>
+          <td>{{ result.score }}</td>
+          <td>{{ result.time_taken }}</td>
+
+        </tr>
+      {% empty %}
+        <tr><td colspan="5">No results yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <br>
+  <a href="{% url 'test_list' %}">Back to Test List</a>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        rankStudents(); // Rank students on page load
+    });
+
+    function rankStudents() {
+        let table = document.getElementById("testResultsTable");
+        let rows = Array.from(table.getElementsByTagName("tbody")[0].rows);
+
+        // Sort by score DESC, then by time_taken ASC
+        rows.sort((rowA, rowB) => {
+            let scoreA = parseInt(rowA.cells[2].textContent);
+            let scoreB = parseInt(rowB.cells[2].textContent);
+            let timeA = parseInt(rowA.cells[3].textContent);
+            let timeB = parseInt(rowB.cells[3].textContent);
+
+            if (scoreA !== scoreB) {
+                return scoreB - scoreA;  // Higher scores first
+            }
+            return timeA - timeB;  // If scores are same, faster times first
+        });
+
+        // Reorder table and assign ranks
+        rows.forEach((row, index) => {
+            row.cells[0].textContent = index + 1;  // Assign rank
+            table.getElementsByTagName("tbody")[0].appendChild(row); // Reorder
+        });
+    }
+
+    function sortTable(columnIndex) {
+        let table = document.getElementById("testResultsTable");
+        let rows = Array.from(table.getElementsByTagName("tbody")[0].rows);
+        let isAscending = table.getAttribute("data-sort") === "asc";
+
+        rows.sort((rowA, rowB) => {
+            let valA = rowA.cells[columnIndex].textContent.trim();
+            let valB = rowB.cells[columnIndex].textContent.trim();
+
+            if (!isNaN(valA) && !isNaN(valB)) {
+                valA = parseFloat(valA);
+                valB = parseFloat(valB);
+            }
+
+            return isAscending ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
+        });
+
+        rows.forEach(row => table.getElementsByTagName("tbody")[0].appendChild(row));
+        table.setAttribute("data-sort", isAscending ? "desc" : "asc");
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}Checkout - {{ course.title }}{% endblock %}
+
+{% block content %}
+<style>
+    /* Container Styling */
+    .checkout-container {
+        max-width: 500px;
+        margin: 50px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    h2 {
+        color: black;
+        border-bottom: 3px solid red;
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    p {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    /* Pay Button Styling */
+    #pay-btn {
+        background: red;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.3s ease-in-out;
+    }
+
+    #pay-btn:hover {
+        background: black;
+        transform: scale(1.05);
+    }
+</style>
+
+<div class="checkout-container">
+    <h2>Enroll in {{ course.title }}</h2>
+    <p><strong>Price:</strong> ₹{{ course.price }}</p>
+
+    <button id="pay-btn">Pay with Razorpay</button>
+</div>
+
+<!-- Razorpay Payment Gateway -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    // Function to retrieve CSRF token from cookies
+    function getCSRFToken() {
+        let csrfToken = null;
+        document.cookie.split('; ').forEach(cookie => {
+            let [name, value] = cookie.split('=');
+            if (name === 'csrftoken') {
+                csrfToken = value;
+            }
+        });
+        return csrfToken;
+    }
+
+    document.getElementById('pay-btn').onclick = function(e) {
+        e.preventDefault();
+
+        var options = {
+            "key": "{{ razorpay_key }}",  // Razorpay API Key
+            "amount": "{{ course.price|floatformat:0 }}00",  // Convert to paisa (₹1 = 100 paise)
+            "currency": "INR",
+            "name": "Your Platform Name",
+            "description": "Payment for {{ course.title }}",
+            "order_id": "{{ order_id }}",  // Razorpay Order ID
+            "handler": function (response) {
+                // Sending payment details to backend for verification
+                fetch("{% url 'verify_payment_course' %}", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken()  // Fetch CSRF Token dynamically
+                    },
+                    body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                        course_id: "{{ course.id }}"
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Payment successful! Redirecting...");
+                        window.location.href = "{% url 'course_detail' course.id %}";
+                    } else {
+                        alert("Payment verification failed: " + (data.error || "Please try again."));
+                    }
+                })
+                .catch(error => {
+                    console.error("Payment verification error:", error);
+                    alert("An unexpected error occurred. Please try again.");
+                });
+            },
+            "prefill": {
+                "name": "{{ user.username }}",
+                "email": "{{ user.email }}"
+            },
+            "theme": {
+                "color": "#ff0000"
+            }
+        };
+
+        var rzp = new Razorpay(options);
+        rzp.open();
+    };
+</script>
+
+{% endblock %}

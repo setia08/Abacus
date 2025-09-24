@@ -1,0 +1,96 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}E-Books{% endblock %}
+
+{% block content %}
+<style>
+    /* Page Container */
+    h2 {
+        text-align: center;
+        color: black;
+        border-bottom: 3px solid red;
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    .ebook-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    /* Ebook Card */
+    .ebook-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        text-align: center;
+        transition: transform 0.3s;
+    }
+
+    .ebook-card:hover {
+        transform: scale(1.05);
+    }
+
+    h3 {
+        color: red;
+    }
+
+    p {
+        font-size: 16px;
+        color: #333;
+        margin: 10px 0;
+    }
+
+    /* Buttons */
+    .btn {
+        display: inline-block;
+        padding: 10px 15px;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: red;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: black;
+    }
+
+    .btn-warning {
+        background: #ffa500;
+        color: white;
+    }
+
+    .btn-warning:hover {
+        background: black;
+    }
+</style>
+
+<h2>E-Books</h2>
+<div class="ebook-container">
+    {% for ebook in ebooks %}
+        <div class="ebook-card">
+            <h3>{{ ebook.title }}</h3>
+            <p>{{ ebook.description }}</p>
+            <p><strong>Price:</strong> ₹{{ ebook.price }}</p>
+            {% if user.is_authenticated %}
+                <a href="{% url 'purchase_ebook' ebook.id %}" class="btn btn-primary">Buy Now</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-warning">Login to Buy</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

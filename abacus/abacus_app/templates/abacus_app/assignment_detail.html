@@ -1,0 +1,110 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}{{ assignment.title }}{% endblock %}
+
+{% block content %}
+<style>
+    /* Container Styling */
+    .assignment-container {
+        max-width: 700px;
+        margin: 40px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        color: black;
+        border-bottom: 3px solid red;
+        display: inline-block;
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+    }
+
+    .assignment-info {
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .download-link {
+        display: inline-block;
+        color: white;
+        background: red;
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .download-link:hover {
+        background: black;
+    }
+
+    .status-message {
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .submitted {
+        color: green;
+        background: #eaffea;
+        border: 1px solid green;
+    }
+
+    .closed {
+        color: red;
+        background: #ffeaea;
+        border: 1px solid red;
+    }
+
+    .btn {
+        display: inline-block;
+        text-decoration: none;
+        padding: 10px 15px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+
+    .btn-primary {
+        background: blue;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: darkblue;
+    }
+</style>
+
+<div class="assignment-container">
+    <h2>{{ assignment.title }}</h2>
+    <p class="assignment-info"><strong>Due Date:</strong> {{ assignment.due_date }}</p>
+    <p class="assignment-info">{{ assignment.description }}</p>
+
+    {% if assignment.file %}
+        <p><a href="{{ assignment.file.url }}" download class="download-link">📄 Download Assignment File</a></p>
+    {% endif %}
+
+    <hr>
+
+    {% if user.is_authenticated %}
+        {% if submission and submission.is_submitted %}
+            <p class="status-message submitted"><strong>You have already submitted this assignment.</strong></p>
+        {% elif assignment.is_past_due %}
+            <p class="status-message closed"><strong>Submission is closed.</strong></p>
+        {% else %}
+            <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-primary">Submit Your Work</a>
+        {% endif %}
+    {% else %}
+        <p><a href="{% url 'login' %}" class="btn btn-primary">Login</a> to submit an assignment.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

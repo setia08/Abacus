@@ -1,0 +1,15 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}Assignments{% endblock %}
+
+{% block content %}
+<h2>Assignments</h2>
+<ul>
+    {% for assignment in assignments %}
+        <li>
+            <a href="{% url 'assignment_detail' assignment.id %}">{{ assignment.title }}</a> 
+            - Due: {{ assignment.due_date }}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

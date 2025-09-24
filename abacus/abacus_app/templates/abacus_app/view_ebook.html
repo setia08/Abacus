@@ -1,0 +1,84 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}{{ ebook.title }}{% endblock %}
+
+{% block content %}
+<style>
+    /* Ebook Container */
+    .ebook-container {
+        text-align: center;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        max-width: 90%;
+        margin: 20px auto;
+    }
+
+    .ebook-container h2 {
+        color: #333;
+        font-size: 24px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid red;
+        padding-bottom: 5px;
+    }
+
+    /* PDF Viewer */
+    #pdf-viewer {
+        width: 100%;
+        height: 85vh;
+        overflow-y: auto;
+        border: 2px solid red;
+        border-radius: 8px;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+
+    canvas {
+        display: block;
+        margin: 0 auto;
+        border-bottom: 1px solid #ddd;
+    }
+</style>
+
+<div class="ebook-container">
+    <h2>{{ ebook.title }}</h2>
+    <div id="pdf-viewer"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+<script>
+    var url = "{{ ebook.file.url }}";
+    var pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+
+    pdfjsLib.getDocument(url).promise.then(function(pdf) {
+        var viewer = document.getElementById("pdf-viewer");
+        viewer.innerHTML = "";  // Clear previous content
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            pdf.getPage(pageNum).then(function(page) {
+                var scale = 1.5;
+                var viewport = page.getViewport({ scale: scale });
+
+                var canvas = document.createElement("canvas");
+                var context = canvas.getContext("2d");
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                viewer.appendChild(canvas);
+
+                var renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                page.render(renderContext);
+            });
+        }
+    });
+</script>
+
+{% endblock %}

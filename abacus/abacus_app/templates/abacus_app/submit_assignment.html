@@ -1,0 +1,92 @@
+{% extends 'abacus_app/layout.html' %}
+
+{% block title %}Submit Assignment{% endblock %}
+
+{% block content %}
+<style>
+    /* Form Container */
+    .submission-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        color: black;
+        border-bottom: 3px solid red;
+        display: inline-block;
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+    }
+
+    .submission-closed {
+        color: red;
+        background: #ffeaea;
+        padding: 10px;
+        border: 1px solid red;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    button {
+        background: blue;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    button:hover {
+        background: darkblue;
+    }
+</style>
+
+<div class="submission-container">
+    <h2>Submit Assignment: {{ assignment.title }}</h2>
+
+    {% if assignment.is_past_due %}
+        <p class="submission-closed"><strong>Submission is closed.</strong></p>
+    {% else %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <label for="answer_text">Answer (Optional):</label>
+            {{ form.answer_text }}
+
+            <label for="answer_file">Upload Work (Image/PDF):</label>
+            {{ form.answer_file }}
+
+            <button type="submit">Submit</button>
+        </form>
+    {% endif %}
+</div>
+
+{% endblock %}
